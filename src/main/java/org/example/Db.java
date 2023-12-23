@@ -2,9 +2,11 @@ package org.example;
 
 import org.example.models.Book;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 
 import java.sql.*;
 import java.util.List;
+
 
 public class Db {
     private static final String URL = "jdbc:mysql://localhost:3306";
@@ -14,12 +16,53 @@ public class Db {
 
     public static List<Book> findBookByAuthor(String author) {
         Connector connector = new Connector();
-        try(Session session = connector.getSession()) {
+        try (Session session = connector.getSession()) {
             return session.createQuery("from Book where author = '" + author + "'", Book.class).getResultList();
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static List<Book> findAll() {
+        Connector connector = new Connector();
+        try (Session session = connector.getSession()) {
+            return session.createQuery("from Book", Book.class).getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void updateName(Long id, String name) {
+        Connector connector = new Connector();
+        try (Session session = connector.getSession()) {
+            String hql = "from Book where id = :id";
+            Query<Book> query = session.createQuery(hql, Book.class);
+            query.setParameter("id", id);
+            Book book = query.getSingleResult();
+            System.out.println(book);
+            book.setName(name);
+            session.beginTransaction();
+            session.update(book);
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void delete(Long id) {
+        Connector connector = new Connector();
+        try (Session session = connector.getSession()) {
+            Query<Book> query = session.createQuery("from Book where id = :id", Book.class);
+            query.setParameter("id", id);
+            Book book = query.getSingleResult();
+            session.beginTransaction();
+            session.delete(book);
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void creatRow(String name, String author) {
@@ -33,7 +76,6 @@ public class Db {
         session.save(book);
         session.getTransaction().commit();
         session.close();
-
     }
 
     public static void createTable() {

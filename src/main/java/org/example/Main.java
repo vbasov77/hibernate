@@ -12,5 +12,9 @@ public class Main {
         List<Book> booksByAuthor = Db.findBookByAuthor("Толстой");
         System.out.println(booksByAuthor);
 
+        Db.updateName(1L, "Только мир");
+        Db.delete(14L);
+
+        System.out.println(Db.findAll());
     }
 }
